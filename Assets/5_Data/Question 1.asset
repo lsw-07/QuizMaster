@@ -12,10 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d67477499401d1c45a9d4b615dc0acc4, type: 3}
   m_Name: Question 1
   m_EditorClassIdentifier: 
-  question: "1. \uCCAB\uBC88\uC9F8 \uD034\uC988 \uC785\uB2C8\uB2E4.\n2. \uCCAB\uBC88\uC9F8
-    \uD034\uC988 \uC785\uB2C8\uB2E4.\n3. \uCCAB\uBC88\uC9F8 \uD034\uC988 \uC785\uB2C8\uB2E4.\n4.
-    \uCCAB\uBC88\uC9F8 \uD034\uC988 \uC785\uB2C8\uB2E4.\n5. \uCCAB\uBC88\uC9F8 \uD034\uC988
-    \uC785\uB2C8\uB2E4.\n6. \uCCAB\uBC88\uC9F8 \uD034\uC988 \uC785\uB2C8\uB2E4."
+  question: "\uCCAB\uBC88\uC9F8\n"
   answers:
   - "\uBCF4\uAE301"
   - "\uBCF4\uAE302"
