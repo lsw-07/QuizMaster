@@ -1,26 +1,33 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Quiz : MonoBehaviour
 {
-    [SerializeField]  TextMeshProUGUI questionText; 
-    [SerializeField]  QuestionSO questions;
-    [SerializeField]  TextMeshProUGUI[] answerTextArr = new TextMeshProUGUI[4];
+    [SerializeField] TextMeshProUGUI questionText; 
+    [SerializeField] QuestionSO question;
+    //[SerializeField] TextMeshProUGUI[] answerTextArr;
+    [SerializeField] GameObject[] answerButtons;
+    [SerializeField] Sprite defaultAnswerSprite;
+    [SerializeField] Sprite correctAnswerSprite;
+
     void Start()
     {
-        questionText.text = questions.GetQuestion();
+        questionText.text = question.GetQuestion();
+        for (int i = 0; i < answerButtons.Length; i++)
 
-        Debug.Log("answerTextArr length: " + answerTextArr.Length);
-
-        answerTextArr[0].text = questions.GetAnswers(0);
-        answerTextArr[1].text = questions.GetAnswers(1); 
-        answerTextArr[2].text = questions.GetAnswers(2);
-        answerTextArr[3].text = questions.GetAnswers(3);
-
-        for (int i = 0; i < answerTextArr.Length; i++)
         {
-            answerTextArr[i].text = questions.GetAnswers(i);
+           // answerTextArr[i].text = question.GetAnswers(i);
+           answerButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = question.GetAnswers(i);
         }
     }
-
+    public void OnAnswerButtonClicked(int index)
+    {
+        if (index == question.GetCorrectAnswerIndex())
+        {
+            questionText.text = "Á¤´ä!";
+            answerButtons[index].GetComponent<Image>().sprite = correctAnswerSprite;
+        }
+   
+    }
 }
