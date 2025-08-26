@@ -1,0 +1,52 @@
+using UnityEngine;
+
+public class Timer : MonoBehaviour
+{
+    [SerializeField] float problemTime = 10f;
+    [SerializeField] float solutionTime = 3f;
+    float time = 0;
+
+    [HideInInspector] public bool isProblemTime = true;
+    [HideInInspector] public float fillamount;
+
+    private void Start()
+    {
+        time = problemTime;
+    }
+
+    private void Update()
+    {
+        TimerCountDowm();
+        UpdateFillAmount();
+
+    }
+
+    private void UpdateFillAmount()
+    {
+        if (isProblemTime)
+            fillamount = time / problemTime;
+
+        else
+            fillamount = time / solutionTime;
+    }
+
+    private void TimerCountDowm()
+    {
+        Debug.Log("Time remaining: " + time);
+        time -= Time.deltaTime;
+        if (time <= 0f)
+        {
+            if (isProblemTime)
+            {
+                isProblemTime = false;
+                time = solutionTime;
+            }
+            else
+            {
+                isProblemTime = true;
+                time = problemTime;
+            }
+        }
+    }
+}
+
