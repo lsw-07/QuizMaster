@@ -8,10 +8,12 @@ public class Timer : MonoBehaviour
 
     [HideInInspector] public bool isProblemTime = true;
     [HideInInspector] public float fillamount;
+    [HideInInspector] public bool loadNextQuestion;
 
     private void Start()
     {
         time = problemTime;
+        loadNextQuestion = true;
     }
 
     private void Update()
@@ -45,8 +47,13 @@ public class Timer : MonoBehaviour
             {
                 isProblemTime = true;
                 time = problemTime;
+                loadNextQuestion = true;
             }
         }
+    }
+    public void CancelTimer()
+    {
+        time = 0;
     }
 }
 

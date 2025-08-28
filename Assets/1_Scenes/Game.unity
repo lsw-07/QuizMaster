@@ -381,6 +381,9 @@ MonoBehaviour:
   - {fileID: 1062809261}
   defaultAnswerSprite: {fileID: -2421234149185767044, guid: c57f61ce459b7cc419c484aed50323bd, type: 3}
   correctAnswerSprite: {fileID: -4659264650518790821, guid: 22b323e1ffb55df40b7ef7312e3ede6f, type: 3}
+  timerimage: {fileID: 307003389}
+  problemTimerionSprite: {fileID: -5384725055999689231, guid: aa94304cafba21641acd7a9846588534, type: 3}
+  solutTimerionSprite: {fileID: 801340330791846111, guid: 2e7e1ad85814ea44c94b8b69daf677ce, type: 3}
 --- !u!1 &286243041 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3401712735071509179, guid: 13131d910eb016241be4c73c193b269a, type: 3}
@@ -1852,6 +1855,7 @@ MonoBehaviour:
   solutionTime: 3
   isProblemTime: 1
   fillamount: 1
+  loadNextQuestion: 0
 --- !u!4 &1715241113
 Transform:
   m_ObjectHideFlags: 0
