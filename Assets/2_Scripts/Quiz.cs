@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,7 +7,8 @@ public class Quiz : MonoBehaviour
 {
     [Header("질문")]
     [SerializeField] TextMeshProUGUI questionText;
-    [SerializeField] QuestionSO question;
+    [SerializeField] List<QuestionSO> questions = new List<QuestionSO>();
+    QuestionSO currentQuestion;
 
     [Header("보기")]
     [SerializeField] GameObject[] answerButtons;
@@ -22,9 +24,15 @@ public class Quiz : MonoBehaviour
     Timer timer;
     bool chooseAnswer = false;
 
+
+    [Header("점수")]
+    [SerializeField] TextMeshProUGUI scoreText;
+    ScoreKeeper scoreKeeper;
+
     void Start()
     {
         timer = FindFirstObjectByType<Timer>();
+        scoreKeeper = FindFirstObjectByType<ScoreKeeper>();
         GetNextQuestion();
     }
 
@@ -43,27 +51,42 @@ public class Quiz : MonoBehaviour
             timer.loadNextQuestion = false;
             GetNextQuestion();
         }
-        if(timer.isProblemTime ==false && chooseAnswer == false)
+        if (timer.isProblemTime == false && chooseAnswer == false)
         {
             DisplaySolution(-1);
         }
     }
     private void GetNextQuestion()
     {
+        if (questions.Count <= 0)
+        {
+            Debug.Log("더 이상 문제가 없습니다.");
+            return;
+        }
+
         chooseAnswer = false;
         SetButtonState(true);
         SetDefaultButtonSprites();
+        GetRandomQuesion();
         OnDisplayQuestion();
+        scoreKeeper.IncrementQuestionSeen();
+    }
+
+    private void GetRandomQuesion()
+    {
+        int randomindex = UnityEngine.Random.Range(0, questions.Count);
+        currentQuestion = questions[randomindex];
+        questions.RemoveAt(randomindex);
     }
 
     private void OnDisplayQuestion()
     {
-        Debug.Log("문제 표시" + question.GetQuestion());
-        questionText.text = question.GetQuestion();
+        Debug.Log("문제 표시" + currentQuestion.GetQuestion());
+        questionText.text = currentQuestion.GetQuestion();
 
         for (int i = 0; i < answerButtons.Length; i++)
         {
-            answerButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = question.GetAnswers(i);
+            answerButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = currentQuestion.GetAnswers(i);
         }
     }
 
@@ -72,18 +95,20 @@ public class Quiz : MonoBehaviour
         chooseAnswer = true;
         DisplaySolution(index);
         timer.CancelTimer();
+        scoreText.text = $"Score: {scoreKeeper.CalculateScore()}"; 
     }
 
     private void DisplaySolution(int index)
     {
-        if (index == question.GetCorrectAnswerIndex())
+        if (index == currentQuestion.GetCorrectAnswerIndex())
         {
             questionText.text = "정답!";
             answerButtons[index].GetComponent<Image>().sprite = correctAnswerSprite;
+            scoreKeeper.IncrementCorrectAnswers();
         }
         else
         {
-            questionText.text = "정답을 틀렸습니다! 정답은    " + question.GetCorrectAnswer();
+            questionText.text = "정답을 틀렸습니다! 정답은    " + currentQuestion.GetCorrectAnswer();
         }
         SetButtonState(false);
     }
