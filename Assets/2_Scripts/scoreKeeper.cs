@@ -27,6 +27,7 @@ public class ScoreKeeper : MonoBehaviour
 
     public int CalculateScore()
     {
+        if(questionSeen == 0) return 0;
         return Mathf .RoundToInt((float)correctAnswers / questionSeen * 100);
     }
  
