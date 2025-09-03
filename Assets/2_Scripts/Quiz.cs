@@ -52,7 +52,10 @@ public class Quiz : MonoBehaviour
 
         if (timer.loadNextQuestion)
         {
-            chooseAnswer = false;
+            if(questions.Count <= 0)
+            {
+                GameManager.Instance.ShowEndSceen();
+            }
             timer.loadNextQuestion = false;
             GetNextQuestion();
         }
