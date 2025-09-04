@@ -52,7 +52,7 @@ public class Quiz : MonoBehaviour
 
         if (timer.loadNextQuestion)
         {
-            if(questions.Count <= 0)
+            if (questions.Count <= 0)
             {
                 GameManager.Instance.ShowEndSceen();
             }
@@ -104,9 +104,9 @@ public class Quiz : MonoBehaviour
         chooseAnswer = true;
         DisplaySolution(index);
         timer.CancelTimer();
-        scoreText.text = $"Score: {scoreKeeper.CalculateScore()}%"; 
+        scoreText.text = $"Score: {scoreKeeper.CalculateScore()}%";
 
-        if(progressBar.value == progressBar.maxValue)
+        if (progressBar.value == progressBar.maxValue)
         {
             isComplete = true;
         }
