@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private Quiz quiz;
     [SerializeField] private EndScreen endScreen;
+    [SerializeField] private GameObject loadingCanvas;
 
     void Awake()
     {
@@ -21,21 +22,31 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    void Start()
     {
-        ShowQuizScreen();
+        //ShowQuizScreen();
     }
 
     private void ShowQuizScreen()
     {
         quiz.gameObject.SetActive(true);
         endScreen.gameObject.SetActive(false);
+        loadingCanvas.SetActive(false);
     }
     public void ShowEndSceen()
     {
         quiz.gameObject.SetActive(false);
         endScreen.gameObject.SetActive(true);
         endScreen.ShowFinalScore();
+        loadingCanvas.SetActive(false);
+
+    }
+
+    public void ShowLoadingSceen()
+    {
+        quiz.gameObject.SetActive(false);
+        endScreen.gameObject.SetActive(false);
+        loadingCanvas.SetActive(true);
     }
     public void OnReplayLevel()
     {

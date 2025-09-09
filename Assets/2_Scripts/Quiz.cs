@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -24,22 +25,43 @@ public class Quiz : MonoBehaviour
     Timer timer;
     bool chooseAnswer = false;
 
-
     [Header("Á¡¼ö")]
     [SerializeField] TextMeshProUGUI scoreText;
     ScoreKeeper scoreKeeper;
 
     [Header("ProgressBar")]
     [SerializeField] Slider progressBar;
-    public bool isComplete;
+
+    bool isGenerateQuestions = false;
+
+    private bool isComplete;
 
     void Start()
     {
         timer = FindFirstObjectByType<Timer>();
         scoreKeeper = FindFirstObjectByType<ScoreKeeper>();
+
+        if (questions.Count <= 0)
+        {
+            GenerateQuestionslfNeeded();
+        }
+        else
+        {
+            lnitalizeProgressBar();
+        }
+    }
+
+    private void GenerateQuestionslfNeeded()
+    {
+        if (isGenerateQuestions) return;
+
+        isGenerateQuestions = true;
+        GameManager.Instance.ShowLoadingSceen();
+    }
+    private void lnitalizeProgressBar()
+    {
         progressBar.maxValue = questions.Count;
         progressBar.value = 0;
-        GetNextQuestion();
     }
 
     private void Update()
@@ -52,12 +74,15 @@ public class Quiz : MonoBehaviour
 
         if (timer.loadNextQuestion)
         {
-            if (questions.Count <= 0)
+            if (questions.Count == 0)
             {
-                GameManager.Instance.ShowEndSceen();
+                GenerateQuestionslfNeeded();
             }
-            timer.loadNextQuestion = false;
-            GetNextQuestion();
+            else
+            {
+                timer.loadNextQuestion = false;
+                GetNextQuestion();
+            }
         }
         if (timer.isProblemTime == false && chooseAnswer == false)
         {
