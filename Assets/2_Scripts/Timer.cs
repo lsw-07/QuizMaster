@@ -34,7 +34,6 @@ public class Timer : MonoBehaviour
 
     private void TimerCountDowm()
     {
-        Debug.Log("Time remaining: " + time);
         time -= Time.deltaTime;
         if (time <= 0f)
         {

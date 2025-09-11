@@ -32,6 +32,10 @@ public class Quiz : MonoBehaviour
     [Header("ProgressBar")]
     [SerializeField] Slider progressBar;
 
+    [Header("ChatGPT Client")]
+    [SerializeField] ChatGPTClient chatGPTClient;
+    [SerializeField] int questionCount  = 3;
+
     bool isGenerateQuestions = false;
 
     private bool isComplete;
@@ -40,6 +44,7 @@ public class Quiz : MonoBehaviour
     {
         timer = FindFirstObjectByType<Timer>();
         scoreKeeper = FindFirstObjectByType<ScoreKeeper>();
+        chatGPTClient.quizGenerataHndler += QuizGeneratedHadler; 
 
         if (questions.Count <= 0)
         {
@@ -57,6 +62,23 @@ public class Quiz : MonoBehaviour
 
         isGenerateQuestions = true;
         GameManager.Instance.ShowLoadingSceen();
+
+        string topicToUse = GetTrendingTopic();
+        chatGPTClient.GenerateQuestions(questionCount, topicToUse);
+        Debug.Log($"GenerateQuestionslfNeeded {topicToUse}");   
+    }
+
+    private string GetTrendingTopic()
+    {
+        string[] topics = new string[] { "과학", "역사", "음악", "영화", "스포츠", "기술", "문학", "예술", "지리", "정치" };
+        int randomIndex = UnityEngine.Random.Range(0, topics.Length);
+        return topics[randomIndex];
+    }
+    
+    void QuizGeneratedHadler(List<QuestionSO> questions)
+    {
+        Debug.Log($"QuizGeneratedHandler: {questions.Count} questions received.");
+        isGenerateQuestions = false;
     }
     private void lnitalizeProgressBar()
     {
