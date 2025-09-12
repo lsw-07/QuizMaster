@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -34,8 +33,8 @@ public class Quiz : MonoBehaviour
 
     [Header("ChatGPT Client")]
     [SerializeField] ChatGPTClient chatGPTClient;
-    [SerializeField] int questionCount  = 3;
-
+    [SerializeField] int questionCount = 3;
+    [SerializeField] TextMeshProUGUI loadingText;
     bool isGenerateQuestions = false;
 
     private bool isComplete;
@@ -44,7 +43,7 @@ public class Quiz : MonoBehaviour
     {
         timer = FindFirstObjectByType<Timer>();
         scoreKeeper = FindFirstObjectByType<ScoreKeeper>();
-        chatGPTClient.quizGenerataHndler += QuizGeneratedHadler; 
+        chatGPTClient.quizGenerataHndler += QuizGeneratedHadler;
 
         if (questions.Count <= 0)
         {
@@ -65,7 +64,7 @@ public class Quiz : MonoBehaviour
 
         string topicToUse = GetTrendingTopic();
         chatGPTClient.GenerateQuestions(questionCount, topicToUse);
-        Debug.Log($"GenerateQuestionslfNeeded {topicToUse}");   
+        Debug.Log($"GenerateQuestionslfNeeded {topicToUse}");
     }
 
     private string GetTrendingTopic()
@@ -74,11 +73,21 @@ public class Quiz : MonoBehaviour
         int randomIndex = UnityEngine.Random.Range(0, topics.Length);
         return topics[randomIndex];
     }
-    
-    void QuizGeneratedHadler(List<QuestionSO> questions)
+
+    void QuizGeneratedHadler(List<QuestionSO> gemeratedQuestions)
     {
-        Debug.Log($"QuizGeneratedHandler: {questions.Count} questions received.");
         isGenerateQuestions = false;
+
+        if (gemeratedQuestions == null || gemeratedQuestions.Count == 0)
+        {
+            Debug.LogError("질문이 생성되지 않았습니다. ");
+            loadingText.text = " 문제 생성에 실패했습니다 . \n 인터넷 연결을 확인하고 다시 시도하세요 . ";
+            return;
+        }
+
+        questions.AddRange(gemeratedQuestions);
+        progressBar.maxValue = gemeratedQuestions.Count;
+        GetNextQuestion();
     }
     private void lnitalizeProgressBar()
     {
@@ -94,6 +103,7 @@ public class Quiz : MonoBehaviour
             timerimage.sprite = solutTimerionSprite;
         timerimage.fillAmount = timer.fillamount;
 
+
         if (timer.loadNextQuestion)
         {
             if (questions.Count == 0)
@@ -102,7 +112,7 @@ public class Quiz : MonoBehaviour
             }
             else
             {
-                timer.loadNextQuestion = false;
+               // timer.loadNextQuestion = false;
                 GetNextQuestion();
             }
         }
@@ -118,7 +128,9 @@ public class Quiz : MonoBehaviour
             Debug.Log("더 이상 문제가 없습니다.");
             return;
         }
+        timer .loadNextQuestion = false;
 
+        GameManager. Instance.ShowQuizSceen();
         chooseAnswer = false;
         SetButtonState(true);
         SetDefaultButtonSprites();

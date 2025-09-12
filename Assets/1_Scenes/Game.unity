@@ -527,6 +527,7 @@ MonoBehaviour:
   progressBar: {fileID: 1484128770}
   chatGPTClient: {fileID: 2122064312}
   questionCount: 3
+  loadingText: {fileID: 101529022}
 --- !u!1 &286243041 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3401712735071509179, guid: 13131d910eb016241be4c73c193b269a, type: 3}

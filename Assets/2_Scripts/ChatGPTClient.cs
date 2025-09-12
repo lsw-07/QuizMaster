@@ -20,15 +20,15 @@ public class ChatGPTClient : MonoBehaviour
     private IEnumerator GenerateWithDelay()
     {
         yield return new WaitForSeconds(3f);
-        List<QuestionSO> questtions = new List<QuestionSO>();
+        List<QuestionSO> questions = new List<QuestionSO>();
         QuestionSO so1 = CreateQuesion("GPT 생선 질문 1", new string[] { "답변1 (정답)", "답변2", "답변3", "답변4" }, 0);
-        questtions.Add(so1);
+        questions.Add(so1);
         QuestionSO so2 = CreateQuesion("GPT 생선 질문 1", new string[] { "답변1", "답변2", "답변3 (정답)", "답변4" }, 2);
-        questtions.Add(so2);
+        questions.Add(so2);
         QuestionSO so3 = CreateQuesion("GPT 생선 질문 1", new string[] { "답변1", "답변2 (정답)", "답변3", "답변4" }, 1); 
-        questtions.Add(so3);
+        questions.Add(so3);
 
-        quizGenerataHndler?.Invoke(new List<QuestionSO>());
+        quizGenerataHndler?.Invoke(questions);
         Debug.Log("Finished GeneratWithDekay............");
 
     }

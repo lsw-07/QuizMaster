@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,7 +17,7 @@ public class GameManager : MonoBehaviour
             Instance = this;
             //DontDestroyOnLoad(gameObject);
         }
-        else if (Instance != this)
+        else 
         {
             Destroy(gameObject);
         }
@@ -53,4 +54,10 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    internal void ShowQuizSceen()
+    {
+        quiz.gameObject.SetActive(true);
+        endScreen.gameObject.SetActive(false);
+        loadingCanvas.SetActive(false);
+    }
 }
