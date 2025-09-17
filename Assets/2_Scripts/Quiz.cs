@@ -43,7 +43,7 @@ public class Quiz : MonoBehaviour
     {
         timer = FindFirstObjectByType<Timer>();
         scoreKeeper = FindFirstObjectByType<ScoreKeeper>();
-        chatGPTClient.quizGenerataHndler += QuizGeneratedHadler;
+        chatGPTClient.quizGenerateHandler += QuizGeneratedHadler;
 
         if (questions.Count <= 0)
         {
