@@ -8,8 +8,7 @@ public class EndScreen : MonoBehaviour
 
     public void ShowFinalScore()
     {
-        finalScoreText.text = "축하합니다! " +
-            $"당신의 점수는 {scoreKeeper.CalculateScore()}% 입니다!";
+        finalScoreText.text = "축하합니다!\n" +
+            $"당신의 점수는 {scoreKeeper.GetScore()}점입니다.";
     }
-
 }

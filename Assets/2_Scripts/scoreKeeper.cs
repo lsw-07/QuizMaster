@@ -1,18 +1,19 @@
+using System;
 using UnityEngine;
 
 public class ScoreKeeper : MonoBehaviour
 {
-    int correctAnswers = 0;
+    int score = 0;
     int questionSeen = 0;
 
-    public int GetCorrectAnswers()
+    public int GetScore()
     {
-        return correctAnswers;
+        return score;
     }
 
-    public void IncrementCorrectAnswers()
+    public void AddScore(int points)
     {
-        correctAnswers++;
+        score += points;
     }
 
     public int GetQuestionSeen()
@@ -25,10 +26,8 @@ public class ScoreKeeper : MonoBehaviour
         questionSeen++;
     }
 
-    public int CalculateScore()
+    internal void IncrementCorrectAnswers()
     {
-        if(questionSeen == 0) return 0;
-        return Mathf .RoundToInt((float)correctAnswers / questionSeen * 100);
+        throw new NotImplementedException();
     }
- 
 }
