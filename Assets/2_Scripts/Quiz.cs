@@ -46,6 +46,9 @@ public class Quiz : MonoBehaviour
     private bool solutionShownThisQuestion = false;       // ★ 현재 문제에서 해설이 이미 떴는지
     private bool gameEnded = false;                       // ★ 종료 플래그
 
+    [Header("힌트")]
+    [SerializeField] TextMeshProUGUI hintText;
+
     void Start()
     {
         timer = FindFirstObjectByType<Timer>();
@@ -105,9 +108,6 @@ public class Quiz : MonoBehaviour
 
     private void lnitalizeProgressBar()
     {
-        // 기존 질문 수 기준으로 맞추고 싶다면 사용.
-        // 하지만 10문제 엔딩 기준이 우선이면 Start에서 설정한 maxValue를 유지하세요.
-        // progressBar.maxValue = questions.Count;
         progressBar.value = 0;
     }
 
@@ -193,6 +193,7 @@ public class Quiz : MonoBehaviour
         Debug.Log("문제 표시 " + currentQuestion.GetQuestion());
         questionText.text = currentQuestion.GetQuestion();
 
+        Debug.Log("힌트 표시 : " +  currentQuestion.GetHint());
         for (int i = 0; i < answerButtons.Length; i++)
         {
             answerButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = currentQuestion.GetAnswers(i);

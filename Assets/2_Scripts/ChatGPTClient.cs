@@ -45,6 +45,7 @@ public class QuizQuestion
     public string question;
     public string[] answers;
     public int correctAnswerIndex;
+    public string hint;
 }
 
 public class ChatGPTClient : MonoBehaviour
@@ -104,13 +105,15 @@ public class ChatGPTClient : MonoBehaviour
                        "_ 글자수 제한: 문제당 120자 이내, 선택지당 25자 이내\n" +
                        "- 문제와 선택지는 흥미롭고 참여하고 싶게 만들어주세요\n" +
                        "- 가능하면 실생활과 연관된 예시나 시나리오를 활용해주세요\n" +
+                       "- 문제 힌트를 추가해 주세요\n" +
                        "- 응답은 반드시 다음 JSON 형식으로만 제공해주세요:\n" +
                        "{\n" +
                        "  \"questions\": [\n" +
                        "    {\n" +
                        "      \"question\": \"문제 내용\",\n" +
                        "      \"answers\": [\"선택지1\", \"선택지2\", \"선택지3\", \"선택지4\"],\n" +
-                       "      \"correctAnswerIndex\": 0\n" +
+                       "      \"correctAnswerIndex\": 0\n," +
+                       "      \"hint\": \"힌트\"" +
                        "    }\n" +
                        "  ]\n" +
                        "}";
@@ -206,16 +209,7 @@ public class ChatGPTClient : MonoBehaviour
         foreach (QuizQuestion quizQ in quizQuestions)
         {
             QuestionSO questionSO = ScriptableObject.CreateInstance<QuestionSO>();
-
-            // Reflection을 사용하여 private 필드에 값 설정
-            var questionField = typeof(QuestionSO).GetField("question", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var answersField = typeof(QuestionSO).GetField("answers", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var correctAnswerIndexField = typeof(QuestionSO).GetField("correctAnswerIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            questionField?.SetValue(questionSO, quizQ.question);
-            answersField?.SetValue(questionSO, quizQ.answers);
-            correctAnswerIndexField?.SetValue(questionSO, quizQ.correctAnswerIndex);
-
+            questionSO.SetData(quizQ.question, quizQ.answers, quizQ.correctAnswerIndex, quizQ.hint);
             questionSOs.Add(questionSO);
         }
 
