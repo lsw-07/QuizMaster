@@ -21,8 +21,8 @@ public class Quiz : MonoBehaviour
     [SerializeField] Image timerimage;
     [SerializeField] Sprite problemTimerionSprite;
     [SerializeField] Sprite solutTimerionSprite;
-    [SerializeField] TextMeshProUGUI timerText;          // ★ 추가: 남은 시간 글자 표시(TMP)
-    [SerializeField] float fallbackSolutionTime = 3f;     // ★ Timer에 solutionTime이 없을 때 사용할 해설시간
+    [SerializeField] TextMeshProUGUI timerText;          // 남은 시간 텍스트(TMP)
+    [SerializeField] float fallbackSolutionTime = 3f;     // Timer에 solutionTime이 없을 때 사용할 해설시간(미사용시 무시)
     Timer timer;
     bool chooseAnswer = false;
 
@@ -40,24 +40,40 @@ public class Quiz : MonoBehaviour
     bool isGenerateQuestions = false;
 
     [Header("Game Flow")]
-    [SerializeField] int totalQuestionsToFinish = 10;     // ★ 10문제 풀면 종료
-    [SerializeField] GameObject winCanvas;                // ★ WinCanvas를 에디터에서 연결
-    private int answeredCount = 0;                        // ★ 처리 완료된 문제 수(정답/오답/시간초과 포함)
-    private bool solutionShownThisQuestion = false;       // ★ 현재 문제에서 해설이 이미 떴는지
-    private bool gameEnded = false;                       // ★ 종료 플래그
+    [SerializeField] int totalQuestionsToFinish = 10;     // 10문제 풀면 종료
+    [SerializeField] GameObject winCanvas;                // WinCanvas를 에디터에서 연결
+    private int answeredCount = 0;                        // 처리 완료된 문제 수(정답/오답/시간초과 포함)
+    private bool solutionShownThisQuestion = false;       // 현재 문제에서 해설이 이미 떴는지
+    private bool gameEnded = false;                       // 종료 플래그
 
     [Header("힌트")]
-    [SerializeField] TextMeshProUGUI hintText;
+    [SerializeField] TextMeshProUGUI hintText;           // ← 여기에 힌트 표시
+    [SerializeField] Button hintButton;                   // ← 힌트 버튼
+    private bool hintShownThisQuestion = false;           // 이번 문제에서 힌트를 이미 봤는지
 
     void Start()
     {
         timer = FindFirstObjectByType<Timer>();
         scoreKeeper = FindFirstObjectByType<ScoreKeeper>();
-        chatGPTClient.quizGenerateHandler += QuizGeneratedHadler;
 
-        // 진행바를 "끝낼 문제 수(10)" 기준으로 맞춥니다.
-        progressBar.maxValue = totalQuestionsToFinish;
-        progressBar.value = 0;
+        if (chatGPTClient != null)
+            chatGPTClient.quizGenerateHandler += QuizGeneratedHadler;
+
+        // 진행바를 "끝낼 문제 수" 기준으로 설정
+        if (progressBar != null)
+        {
+            progressBar.maxValue = totalQuestionsToFinish;
+            progressBar.value = 0;
+        }
+
+        // 힌트 UI 초기화: 처음엔 숨김
+        HideHint();
+        if (hintButton)
+        {
+            hintButton.interactable = true;
+            hintButton.gameObject.SetActive(false);
+            // hintButton.onClick.AddListener(OnHintButtonClicked);
+        }
 
         if (questions.Count <= 0)
         {
@@ -65,7 +81,7 @@ public class Quiz : MonoBehaviour
         }
         else
         {
-            lnitalizeProgressBar(); // 필요하면 유지
+            lnitalizeProgressBar();
         }
 
         UpdateTimerUI(); // 초기 타이머 텍스트 표시
@@ -76,11 +92,20 @@ public class Quiz : MonoBehaviour
         if (isGenerateQuestions) return;
 
         isGenerateQuestions = true;
-        GameManager.Instance.ShowLoadingSceen(); // 프로젝트에 이미 있는 함수 사용
+        if (GameManager.Instance != null)
+            GameManager.Instance.ShowLoadingSceen(); // 프로젝트에 이미 있는 함수 사용
 
         string topicToUse = GetTrendingTopic();
-        chatGPTClient.GenerateQuestions(questionCount, topicToUse);
-        Debug.Log($"GenerateQuestionslfNeeded {topicToUse}");
+        if (chatGPTClient != null)
+        {
+            chatGPTClient.GenerateQuestions(questionCount, topicToUse);
+            Debug.Log($"GenerateQuestionslfNeeded {topicToUse}");
+        }
+        else
+        {
+            Debug.LogError("ChatGPTClient가 연결되지 않았습니다.");
+            if (loadingText) loadingText.text = "문제 생성에 실패했습니다.\nChatGPTClient를 연결하세요.";
+        }
     }
 
     private string GetTrendingTopic()
@@ -97,33 +122,43 @@ public class Quiz : MonoBehaviour
         if (gemeratedQuestions == null || gemeratedQuestions.Count == 0)
         {
             Debug.LogError("질문이 생성되지 않았습니다.");
-            loadingText.text = "문제 생성에 실패했습니다.\n인터넷 연결을 확인하고 다시 시도하세요.";
+            if (loadingText) loadingText.text = "문제 생성에 실패했습니다.\n인터넷 연결을 확인하고 다시 시도하세요.";
             return;
         }
 
         questions.AddRange(gemeratedQuestions);
-        // progressBar.maxValue = gemeratedQuestions.Count; // 엔딩 기준(10)에 맞추기 위해 비활성화 권장
         GetNextQuestion();
     }
 
     private void lnitalizeProgressBar()
     {
-        progressBar.value = 0;
+        if (progressBar != null) progressBar.value = 0;
     }
 
     private void Update()
     {
-        if (gameEnded) return; // 종료 후 추가 진행 방지
+        if (gameEnded) return;
 
         // 타이머 이미지/게이지
-        timerimage.sprite = timer.isProblemTime ? problemTimerionSprite : solutTimerionSprite;
-        timerimage.fillAmount = timer.fillamount;
+        if (timerimage != null && timer != null)
+        {
+            timerimage.sprite = timer.isProblemTime ? problemTimerionSprite : solutTimerionSprite;
+            timerimage.fillAmount = timer.fillamount;
+        }
 
         // 남은 시간 텍스트 갱신
         UpdateTimerUI();
 
+        // 문제 풀이 시간에만 힌트 버튼 보이기(아직 안봤고, 힌트가 있을 때만)
+        if (hintButton)
+        {
+            bool hasHint = currentQuestion != null && !string.IsNullOrWhiteSpace(currentQuestion.GetHint());
+            bool showDuringSolve = timer == null ? true : timer.isProblemTime; // timer 없으면 일단 보이도록 처리
+            hintButton.gameObject.SetActive(showDuringSolve && !hintShownThisQuestion && hasHint);
+        }
+
         // 다음 문제 로드 플래그
-        if (timer.loadNextQuestion)
+        if (timer != null && timer.loadNextQuestion)
         {
             // 10문제 다 풀었으면 종료
             if (answeredCount >= totalQuestionsToFinish)
@@ -143,7 +178,7 @@ public class Quiz : MonoBehaviour
         }
 
         // 풀이 시간이 끝났는데 선택을 안 했다면, 자동으로 해설 표시(시간초과)
-        if (!timer.isProblemTime && !chooseAnswer)
+        if (timer != null && !timer.isProblemTime && !chooseAnswer)
         {
             DisplaySolution(-1);
         }
@@ -166,16 +201,28 @@ public class Quiz : MonoBehaviour
             return;
         }
 
-        timer.loadNextQuestion = false;
+        if (timer != null) timer.loadNextQuestion = false;
 
-        GameManager.Instance.ShowQuizSceen();
+        if (GameManager.Instance != null)
+            GameManager.Instance.ShowQuizSceen();
+
         chooseAnswer = false;
-        solutionShownThisQuestion = false; // 새 문제 시작 시 초기화
+        solutionShownThisQuestion = false;
+
+        // 힌트 UI 리셋: 새 문제 시작마다 숨김
+        hintShownThisQuestion = false;
+        HideHint();
+        if (hintButton)
+        {
+            hintButton.interactable = true;
+            hintButton.gameObject.SetActive(false); // 문제 표시 직후엔 일단 숨김(아래 OnDisplayQuestion에서 판단)
+        }
+
         SetButtonState(true);
         SetDefaultButtonSprites();
         GetRandomQuesion();
         OnDisplayQuestion();
-        scoreKeeper.IncrementQuestionSeen();
+        if (scoreKeeper != null) scoreKeeper.IncrementQuestionSeen();
 
         // 문제 시작 즉시 타이머 텍스트 갱신
         UpdateTimerUI();
@@ -190,13 +237,28 @@ public class Quiz : MonoBehaviour
 
     private void OnDisplayQuestion()
     {
-        Debug.Log("문제 표시 " + currentQuestion.GetQuestion());
-        questionText.text = currentQuestion.GetQuestion();
+        if (currentQuestion == null)
+        {
+            Debug.LogWarning("현재 문제가 없습니다.");
+            return;
+        }
 
-        Debug.Log("힌트 표시 : " +  currentQuestion.GetHint());
+        Debug.Log("문제 표시 " + currentQuestion.GetQuestion());
+        if (questionText) questionText.text = currentQuestion.GetQuestion();
+
+        Debug.Log("힌트 표시 : " + currentQuestion.GetHint());
         for (int i = 0; i < answerButtons.Length; i++)
         {
-            answerButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = currentQuestion.GetAnswers(i);
+            var label = answerButtons[i].GetComponentInChildren<TextMeshProUGUI>();
+            if (label != null) label.text = currentQuestion.GetAnswers(i);
+        }
+
+        // 힌트 버튼 표시 여부(힌트가 있는 문제 + 풀이 시간)
+        if (hintButton)
+        {
+            bool hasHint = !string.IsNullOrWhiteSpace(currentQuestion.GetHint());
+            bool showDuringSolve = timer == null ? true : timer.isProblemTime;
+            hintButton.gameObject.SetActive(showDuringSolve && hasHint && !hintShownThisQuestion);
         }
     }
 
@@ -205,22 +267,30 @@ public class Quiz : MonoBehaviour
         if (gameEnded) return;
 
         chooseAnswer = true;
-        DisplaySolution(index);   // 이 안에서 문제 처리 수 증가 + 종료 체크까지 수행
-        timer.CancelTimer();
+        DisplaySolution(index);
+        if (timer != null) timer.CancelTimer();
 
         // 정답일 때만 점수 계산
-        if (index == currentQuestion.GetCorrectAnswerIndex())
+        if (currentQuestion != null && index == currentQuestion.GetCorrectAnswerIndex() && scoreKeeper != null)
         {
             int points = 0;
 
-            if (timer.elapsedTime <= 3f) points = 5;
-            else if (timer.elapsedTime <= 7f) points = 3;
-            else if (timer.elapsedTime <= timer.problemTime) points = 1;
+            if (timer != null)
+            {
+                if (timer.elapsedTime <= 3f) points = 5;
+                else if (timer.elapsedTime <= 7f) points = 3;
+                else if (timer.elapsedTime <= timer.problemTime) points = 1;
+            }
+            else
+            {
+                points = 1; // 타이머가 없다면 기본 점수
+            }
 
             scoreKeeper.AddScore(points);
         }
 
-        scoreText.text = $"Score: {scoreKeeper.GetScore()}";
+        if (scoreText != null && scoreKeeper != null)
+            scoreText.text = $"Score: {scoreKeeper.GetScore()}";
     }
 
     private void DisplaySolution(int index)
@@ -229,22 +299,27 @@ public class Quiz : MonoBehaviour
         if (solutionShownThisQuestion) return;
         solutionShownThisQuestion = true;
 
-        if (index == currentQuestion.GetCorrectAnswerIndex())
+        if (currentQuestion != null && index == currentQuestion.GetCorrectAnswerIndex())
         {
-            questionText.text = "정답!";
+            if (questionText) questionText.text = "정답!";
             if (index >= 0 && index < answerButtons.Length)
                 answerButtons[index].GetComponent<Image>().sprite = correctAnswerSprite;
         }
         else
         {
-            questionText.text = "정답을 틀렸습니다! 정답은 " + currentQuestion.GetCorrectAnswer();
+            if (questionText && currentQuestion != null)
+                questionText.text = "정답을 틀렸습니다! 정답은 " + currentQuestion.GetCorrectAnswer();
         }
 
         SetButtonState(false);
 
+        // 해설 시간/정답 공개 시 힌트 버튼은 숨김
+        if (hintButton) hintButton.gameObject.SetActive(false);
+
         // 문제 하나 처리 완료
         answeredCount++;
-        progressBar.value = Mathf.Min(answeredCount, (int)progressBar.maxValue);
+        if (progressBar != null)
+            progressBar.value = Mathf.Min(answeredCount, (int)progressBar.maxValue);
 
         // 10개 달성 시 종료
         if (answeredCount >= totalQuestionsToFinish)
@@ -258,7 +333,8 @@ public class Quiz : MonoBehaviour
         foreach (GameObject obj in answerButtons)
         {
             Image buttonImage = obj.GetComponent<Image>();
-            buttonImage.sprite = defaultAnswerSprite;
+            if (buttonImage != null)
+                buttonImage.sprite = defaultAnswerSprite;
         }
     }
 
@@ -266,35 +342,20 @@ public class Quiz : MonoBehaviour
     {
         foreach (GameObject obj in answerButtons)
         {
-            obj.GetComponent<Button>().interactable = state;
+            var btn = obj.GetComponent<Button>();
+            if (btn != null) btn.interactable = state;
         }
     }
 
-    // ▼ 남은 시간 “N초” 텍스트 표시
+    // 남은 시간 “N초” 텍스트 표시
     private void UpdateTimerUI()
     {
         if (timerText == null || timer == null) return;
 
-        float remainSeconds = 0f;
+        float total = timer.isProblemTime ? timer.problemTime : timer.solutionTime;
+        float remain = Mathf.Max(0f, total - timer.elapsedTime);
 
-        if (timer.isProblemTime)
-        {
-            // 풀이 시간 남은 초
-            remainSeconds = Mathf.Max(0f, timer.problemTime - timer.elapsedTime);
-        }
-        else
-        {
-            // 해설 시간 남은 초
-            float totalSolution = fallbackSolutionTime;
-
-            // 프로젝트의 Timer에 public float solutionTime 이 있다면 아래 주석 해제:
-            // totalSolution = timer.solutionTime;
-
-            remainSeconds = Mathf.Max(0f, totalSolution - timer.elapsedTime);
-        }
-
-        int display = Mathf.CeilToInt(remainSeconds);
-        timerText.text = $"{display}초";
+        timerText.text = $"{Mathf.CeilToInt(remain)}초";
     }
 
     private void EndGame()
@@ -305,6 +366,10 @@ public class Quiz : MonoBehaviour
         if (timer != null) timer.CancelTimer();
         SetButtonState(false);
 
+        // 종료 시 힌트 UI 숨김
+        HideHint();
+        if (hintButton) hintButton.gameObject.SetActive(false);
+
         // WinCanvas 활성화
         if (winCanvas != null) winCanvas.SetActive(true);
         else Debug.LogWarning("WinCanvas가 연결되지 않았습니다. Quiz 인스펙터에 할당하세요.");
@@ -313,5 +378,37 @@ public class Quiz : MonoBehaviour
         var end = FindFirstObjectByType<EndScreen>();
         if (end != null) end.ShowFinalScore();
         else Debug.LogWarning("EndScreen을 찾을 수 없습니다. 씬에 배치했는지 확인하세요.");
+    }
+
+    // ===== 힌트 버튼 핸들러 & 유틸 =====
+    public void OnHintButtonClicked()
+    {
+        if (currentQuestion == null || hintShownThisQuestion) return;
+
+        string hint = currentQuestion.GetHint();
+        if (string.IsNullOrWhiteSpace(hint)) hint = "힌트가 준비되지 않았어요!";
+
+        ShowHint(hint);               // ← 버튼 클릭 시 텍스트 보이게 + 내용 표시
+        hintShownThisQuestion = true; // 중복 방지
+
+        if (hintButton)
+        {
+            hintButton.interactable = false;       // 더 못 누르게
+            hintButton.gameObject.SetActive(false); // 원하면 true 유지 가능
+        }
+    }
+
+    private void ShowHint(string text)
+    {
+        if (!hintText) return;
+        hintText.gameObject.SetActive(true);   // ★ 보이게!
+        hintText.text = $"힌트: {text}";
+    }
+
+    private void HideHint()
+    {
+        if (!hintText) return;
+        hintText.gameObject.SetActive(false);  // ★ 숨기기
+        hintText.text = "";
     }
 }
