@@ -47,9 +47,12 @@ public class Quiz : MonoBehaviour
     private bool gameEnded = false;                       // 종료 플래그
 
     [Header("힌트")]
-    [SerializeField] TextMeshProUGUI hintText;           // ← 여기에 힌트 표시
-    [SerializeField] Button hintButton;                   // ← 힌트 버튼
+    [SerializeField] TextMeshProUGUI hintText;           // 힌트 표시 TMP
+    [SerializeField] Button hintButton;                   // 힌트 버튼
     private bool hintShownThisQuestion = false;           // 이번 문제에서 힌트를 이미 봤는지
+
+    [Header("입력(단축키)")]
+    [SerializeField] KeyCode hintKey = KeyCode.H;         // 힌트 키 (기본 H)
 
     void Start()
     {
@@ -72,7 +75,8 @@ public class Quiz : MonoBehaviour
         {
             hintButton.interactable = true;
             hintButton.gameObject.SetActive(false);
-            // hintButton.onClick.AddListener(OnHintButtonClicked);
+            // ★ 버튼 클릭으로 힌트 뜨게 연결
+            hintButton.onClick.AddListener(OnHintButtonClicked);
         }
 
         if (questions.Count <= 0)
@@ -152,9 +156,17 @@ public class Quiz : MonoBehaviour
         // 문제 풀이 시간에만 힌트 버튼 보이기(아직 안봤고, 힌트가 있을 때만)
         if (hintButton)
         {
-            bool hasHint = currentQuestion != null && !string.IsNullOrWhiteSpace(currentQuestion.GetHint());
-            bool showDuringSolve = timer == null ? true : timer.isProblemTime; // timer 없으면 일단 보이도록 처리
-            hintButton.gameObject.SetActive(showDuringSolve && !hintShownThisQuestion && hasHint);
+            bool hasHintBtn = currentQuestion != null && !string.IsNullOrWhiteSpace(currentQuestion.GetHint());
+            bool showDuringSolveBtn = timer == null ? true : timer.isProblemTime; // timer 없으면 일단 보이도록 처리
+            hintButton.gameObject.SetActive(showDuringSolveBtn && !hintShownThisQuestion && hasHintBtn);
+        }
+
+        // ▼▼▼ 단축키(H)로 힌트 띄우기
+        bool hasHint = currentQuestion != null && !string.IsNullOrWhiteSpace(currentQuestion.GetHint());
+        bool duringSolve = (timer == null) ? true : timer.isProblemTime;
+        if (!gameEnded && duringSolve && hasHint && !hintShownThisQuestion && Input.GetKeyDown(hintKey))
+        {
+            OnHintButtonClicked();
         }
 
         // 다음 문제 로드 플래그
@@ -256,9 +268,17 @@ public class Quiz : MonoBehaviour
         // 힌트 버튼 표시 여부(힌트가 있는 문제 + 풀이 시간)
         if (hintButton)
         {
-            bool hasHint = !string.IsNullOrWhiteSpace(currentQuestion.GetHint());
+            bool hasHintLocal = !string.IsNullOrWhiteSpace(currentQuestion.GetHint());
             bool showDuringSolve = timer == null ? true : timer.isProblemTime;
-            hintButton.gameObject.SetActive(showDuringSolve && hasHint && !hintShownThisQuestion);
+            hintButton.gameObject.SetActive(showDuringSolve && hasHintLocal && !hintShownThisQuestion);
+
+            // 버튼 라벨에 단축키 표기 붙이기 (예: "힌트 (H)")
+            var btnLabel = hintButton.GetComponentInChildren<TextMeshProUGUI>();
+            if (btnLabel != null)
+            {
+                string baseText = string.IsNullOrWhiteSpace(btnLabel.text) ? "힌트" : btnLabel.text.Split('(')[0].TrimEnd(); // 기존 (H) 중복 방지
+                btnLabel.text = $"{baseText} ({hintKey})";
+            }
         }
     }
 
@@ -388,12 +408,12 @@ public class Quiz : MonoBehaviour
         string hint = currentQuestion.GetHint();
         if (string.IsNullOrWhiteSpace(hint)) hint = "힌트가 준비되지 않았어요!";
 
-        ShowHint(hint);               // ← 버튼 클릭 시 텍스트 보이게 + 내용 표시
+        ShowHint(hint);               // 버튼/키 입력 시 텍스트 보이게 + 내용 표시
         hintShownThisQuestion = true; // 중복 방지
 
         if (hintButton)
         {
-            hintButton.interactable = false;       // 더 못 누르게
+            hintButton.interactable = false;        // 더 못 누르게
             hintButton.gameObject.SetActive(false); // 원하면 true 유지 가능
         }
     }
