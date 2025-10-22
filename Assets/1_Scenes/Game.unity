@@ -748,6 +748,7 @@ MonoBehaviour:
   hintText: {fileID: 1260198018}
   hintButton: {fileID: 534542565}
   hintKey: 104
+  startImmediately: 0
 --- !u!1 &286243041 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3401712735071509179, guid: 13131d910eb016241be4c73c193b269a, type: 3}
@@ -1758,6 +1759,8 @@ GameObject:
   - component: {fileID: 757892500}
   - component: {fileID: 757892499}
   - component: {fileID: 757892498}
+  - component: {fileID: 757892502}
+  - component: {fileID: 757892503}
   m_Layer: 5
   m_Name: Start Canvas
   m_TagString: Untagged
@@ -1853,6 +1856,32 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &757892502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 757892497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f81da31ece8413b49b1390f04675811e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  quiz: {fileID: 248591806}
+  menuCanvas: {fileID: 0}
+--- !u!114 &757892503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 757892497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81ea62e3e50e4ce899a84594923cacba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &758519039
 GameObject:
   m_ObjectHideFlags: 0
@@ -4633,7 +4662,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1779500967}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1779500964}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1779500967
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5678,7 +5719,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2027883052}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2027883052
 MonoBehaviour:
   m_ObjectHideFlags: 0

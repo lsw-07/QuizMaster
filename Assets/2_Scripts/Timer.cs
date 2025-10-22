@@ -3,7 +3,7 @@ using UnityEngine;
 public class Timer : MonoBehaviour
 {
     [SerializeField] public float problemTime = 15f;   // Quiz에서 접근 가능
-    [SerializeField] public float solutionTime = 5f;   // ★ 공개로 변경: Quiz에서 읽어 UI 일치
+    [SerializeField] public float solutionTime = 5f;   
 
     float time = 0f;
 
