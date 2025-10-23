@@ -87,9 +87,12 @@ public class ChatGPTClient : MonoBehaviour
 
         string prompt =
             "아래 스키마의 JSON만 출력. 코드펜스/설명/주석 금지.\n" +
+            "중복 문제 금지.\n" +
+            "난이도는 중학생 수준으로.\n" +
+
             headerRule + "\n" +
             $"- 문제 수: {count}\n" +
-            "- 각 문제는 4지선다. 문제 120자 이내, 선택지 25자 이내\n" +
+            "- 각 문제는 4지선다. 문제 120자 이내, 선택지 30자 이내\n" +
             "- correctAnswerIndex는 0~3 정수\n" +
             "- 간단한 hint 포함\n" +
             "스키마 예시: {\n" +
