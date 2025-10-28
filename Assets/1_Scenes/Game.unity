@@ -750,6 +750,8 @@ MonoBehaviour:
   hintButton: {fileID: 534542565}
   hintKey: 104
   startImmediately: 1
+  autoShowHint: 1
+  autoHintThreshold: 5
 --- !u!82 &248591807
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3737,7 +3739,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1543736451
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5071,7 +5073,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1868402182
 MonoBehaviour:
   m_ObjectHideFlags: 0

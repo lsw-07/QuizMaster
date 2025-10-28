@@ -57,6 +57,10 @@ public class Quiz : MonoBehaviour
     [Header("시작 옵션")]
     [SerializeField] bool startImmediately = false; // 메뉴 시작이면 false
 
+    [Header("힌트 자동 표시")]
+    [SerializeField] bool autoShowHint = true;
+    [SerializeField, Min(0f)] float autoHintThreshold = 5f;
+
     string topicOverride = null;
 
     void Awake()
@@ -221,9 +225,24 @@ public class Quiz : MonoBehaviour
             hintButton.gameObject.SetActive(showDuringSolveBtn && !hintShownThisQuestion && hasHintBtn);
         }
 
-        bool hasHint = currentQuestion != null && !string.IsNullOrWhiteSpace(currentQuestion.GetHint());
+        // === 자동 힌트: 문제 풀이 시간에 남은 시간이 임계치 이하이면 1회 표시 ===
+        if (autoShowHint && !hintShownThisQuestion && currentQuestion != null && timer != null && timer.isProblemTime)
+        {
+            bool hasHint = !string.IsNullOrWhiteSpace(currentQuestion.GetHint());
+            if (hasHint)
+            {
+                float remain = Mathf.Max(0f, timer.problemTime - timer.elapsedTime);
+                if (remain <= autoHintThreshold)
+                {
+                    OnHintButtonClicked();   // 내부에서 중복 방지됨
+                }
+            }
+        }
+        // === 자동 힌트 끝 ===
+
+        bool hasHint2 = currentQuestion != null && !string.IsNullOrWhiteSpace(currentQuestion.GetHint());
         bool duringSolve = (timer == null) ? true : timer.isProblemTime;
-        if (!gameEnded && duringSolve && hasHint && !hintShownThisQuestion && Input.GetKeyDown(hintKey))
+        if (!gameEnded && duringSolve && hasHint2 && !hintShownThisQuestion && Input.GetKeyDown(hintKey))
             OnHintButtonClicked();
 
         if (timer != null && timer.loadNextQuestion)
@@ -236,6 +255,7 @@ public class Quiz : MonoBehaviour
         if (timer != null && !timer.isProblemTime && !chooseAnswer)
             DisplaySolution(-1);
     }
+
 
     void GetNextQuestion()
     {
